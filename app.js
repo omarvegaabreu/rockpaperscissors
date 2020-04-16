@@ -13,30 +13,30 @@ let gameIsRunning = false;
 
 //sets player choice
 const getPlayerChoice = () => {
-  const selection = prompt(
-    `${ROCK}, ${PAPER} or ${SCISSORS}?`,
-    ""
-  ).toUpperCase();
-  if (selection !== ROCK && selection !== PAPER && selection !== SCISSORS) {
-    alert(`Invalid choice! We chose ${DEFAULT_USER_CHOICE} for you!`);
-    return DEFAULT_USER_CHOICE;
+  try {
+    const selection = prompt(
+      `${ROCK}, ${PAPER} or ${SCISSORS}?`,
+      ""
+    ).toUpperCase();
+    if (selection !== ROCK && selection !== PAPER && selection !== SCISSORS) {
+      alert(`Invalid choice! We chose ${DEFAULT_USER_CHOICE} for you!`);
+      return;
+    }
+    return selection;
+  } catch (error) {
+    console.log("error", error);
   }
-  return selection;
 };
 
-const getWinner = (cChoice, pChoice) => {
-  if (cChoice === pChoice) {
-    return RESULT_DRAW;
-  } else if (
-    (cChoice === PAPER && pChoice === SCISSORS) ||
-    (cChoice === ROCK && pChoice === PAPER) ||
-    (cChoice === SCISSORS && pChoice === ROCK)
-  ) {
-    return RESULT_PLAYER_WINS;
-  } else {
-    return RESULT_COMPUTER_WINS;
-  }
-};
+//evaluates who wins player or computer
+const getWinner = (cChoice, pChoice = DEFAULT_USER_CHOICE) =>
+  cChoice === pChoice
+    ? RESULT_DRAW
+    : (cChoice === PAPER && pChoice === SCISSORS) ||
+      (cChoice === ROCK && pChoice === PAPER) ||
+      (cChoice === SCISSORS && pChoice === ROCK)
+    ? RESULT_PLAYER_WINS
+    : RESULT_COMPUTER_WINS;
 
 //sets computer choice
 const getComputerChoice = () => {
@@ -54,13 +54,34 @@ const getComputerChoice = () => {
 startGameBtn.addEventListener("click", () => {
   const playerChoice = getPlayerChoice();
   const computerChoice = getComputerChoice();
-  const winner = getWinner(computerChoice, playerChoice);
+  let winner;
+  let message = `You picked: ${
+    playerChoice || DEFAULT_USER_CHOICE
+  }. Computer pick: ${computerChoice}. `;
+  console.log("Game is running");
 
+  //evaluate if playerChoice has value
+  if (playerChoice) {
+    winner = getWinner(computerChoice, playerChoice);
+  } else {
+    winner = getWinner(computerChoice, playerChoice); //default value will be set if !playerChoice
+  }
+
+  //if game is running prevents another game star
   if (gameIsRunning) {
     return;
   }
-  gameIsRunning = true;
-  console.log("start game");
 
+  gameIsRunning = true;
+  //evaluate win or loose statement
+  if (winner === RESULT_DRAW) {
+    message = message + `It's a ${RESULT_DRAW}`;
+  } else if (winner === RESULT_PLAYER_WINS) {
+    message = message + `You ${RESULT_PLAYER_WINS}!`;
+  } else {
+    message = `You loose! ${RESULT_COMPUTER_WINS}!`;
+  }
+
+  alert(message);
   console.log(winner);
 });
